@@ -23,8 +23,30 @@ pipeline {
 
         stage('Terraform Plan') {
             steps {
-                sh 'terraform plan'
+                sh 'terraform plan -out=tfplan'
             }
+        }
+
+        stage('Approval') {
+            steps {
+                input message: 'Approve Terraform Changes?'
+            }
+        }
+
+        stage('Terraform Apply') {
+            steps {
+                sh 'terraform apply -auto-approve tfplan'
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Terraform deployment completed successfully.'
+        }
+
+        failure {
+            echo 'Terraform deployment failed.'
         }
     }
 }
